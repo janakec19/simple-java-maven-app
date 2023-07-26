@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    parameters{
+    string(defaultValue: "QA", description:"which env to deploy", name:"deployEnv")
+    }
+    stages {
+     stage('Env') {
+            steps {
+            echo "Env value used in parameter - ${params.deployEnv}"
+               
+            }
+        }
+        stage('Build') {
+            steps {
+            
+                sh 'mvn -B -Denforcer.skip -DskipTests clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn -Denforcer.skip test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+        
+    }
+}
